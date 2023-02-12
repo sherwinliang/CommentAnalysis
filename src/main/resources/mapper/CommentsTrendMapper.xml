@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ca.mapper.CommentsTrendMapper">
+  <resultMap id="BaseResultMap" type="com.ca.bean.CommentsTrend">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="product_id" jdbcType="VARCHAR" property="productId" />
+    <result column="year" jdbcType="CHAR" property="year" />
+    <result column="avg_score" jdbcType="DECIMAL" property="avgScore" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from comments_trend
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ca.bean.CommentsTrend">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into comments_trend (product_id, `year`, avg_score
+      )
+    values (#{productId,jdbcType=VARCHAR}, #{year,jdbcType=CHAR}, #{avgScore,jdbcType=DECIMAL}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.ca.bean.CommentsTrend">
+    update comments_trend
+    set product_id = #{productId,jdbcType=VARCHAR},
+      `year` = #{year,jdbcType=CHAR},
+      avg_score = #{avgScore,jdbcType=DECIMAL}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, product_id, `year`, avg_score
+    from comments_trend
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, product_id, `year`, avg_score
+    from comments_trend
+  </select>
+  <select id="selectTrendByProductId" resultMap="BaseResultMap">
+    select id, product_id, `year`, avg_score
+    from comments_trend where product_id=#{productId,jdbcType=VARCHAR} order by `year` asc
+  </select>
+  <select id="selectProductList" resultType="java.lang.String">
+    select product_id from comments_trend group by product_id asc having count(1)>2 limit 100
+  </select>
+  <delete id="deleteAll">
+    truncate table comments_trend
+  </delete>
+</mapper>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ca.mapper.CommentsAnalysisMapper">
+  <resultMap id="BaseResultMap" type="com.ca.bean.CommentsAnalysis">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="product_id" jdbcType="VARCHAR" property="productId" />
+    <result column="sale_volumn" jdbcType="INTEGER" property="saleVolumn" />
+    <result column="avg_score" jdbcType="DECIMAL" property="avgScore" />
+    <result column="max_score" jdbcType="INTEGER" property="maxScore" />
+    <result column="min_score" jdbcType="INTEGER" property="minScore" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from comments_analysis
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ca.bean.CommentsAnalysis">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into comments_analysis (product_id, sale_volumn, avg_score, 
+      max_score, min_score)
+    values (#{productId,jdbcType=VARCHAR}, #{saleVolumn,jdbcType=INTEGER}, #{avgScore,jdbcType=DECIMAL},
+      #{maxScore,jdbcType=INTEGER}, #{minScore,jdbcType=INTEGER})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.ca.bean.CommentsAnalysis">
+    update comments_analysis
+    set product_id = #{productId,jdbcType=VARCHAR},
+      sale_volumn = #{saleVolumn,jdbcType=INTEGER},
+      avg_score = #{avgScore,jdbcType=DECIMAL},
+      max_score = #{maxScore,jdbcType=INTEGER},
+      min_score = #{minScore,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, product_id, sale_volumn, avg_score, max_score, min_score
+    from comments_analysis
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, product_id, sale_volumn, avg_score, max_score, min_score
+    from comments_analysis
+  </select>
+  <select id="selectAvgScoreByRange" resultMap="BaseResultMap">
+    select id, product_id, sale_volumn, avg_score, max_score, min_score
+    from comments_analysis order by avg_score desc,max_score desc,min_score desc limit #{rangeCount,jdbcType=INTEGER}
+  </select>
+  <select id="selectSaleVolumnByRange" resultMap="BaseResultMap">
+    select id, product_id, sale_volumn, avg_score, max_score, min_score
+    from comments_analysis where sale_volumn &gt;=#{minVolumn,jdbcType=INTEGER} order by sale_volumn desc limit #{rangeCount,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteAll">
+    truncate table comments_analysis
+  </delete>
+</mapper>

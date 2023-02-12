@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ca.mapper.CommentsMapper">
+  <resultMap id="BaseResultMap" type="com.ca.bean.Comments">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="product_id" jdbcType="VARCHAR" property="productId" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="profile_name" jdbcType="VARCHAR" property="profileName" />
+    <result column="helpfulness_numerator" jdbcType="INTEGER" property="helpfulnessNumerator" />
+    <result column="helpfulness_denominator" jdbcType="INTEGER" property="helpfulnessDenominator" />
+    <result column="score" jdbcType="INTEGER" property="score" />
+    <result column="time" jdbcType="TIMESTAMP" property="time" />
+    <result column="summary" jdbcType="VARCHAR" property="summary" />
+    <result column="text" jdbcType="LONGVARCHAR" property="text" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from comments
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ca.bean.Comments">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into comments (product_id, user_id, profile_name, 
+      helpfulness_numerator, helpfulness_denominator, 
+      score, `time`, summary, 
+      `text`)
+    values (#{productId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{profileName,jdbcType=VARCHAR}, 
+      #{helpfulnessNumerator,jdbcType=INTEGER}, #{helpfulnessDenominator,jdbcType=INTEGER}, 
+      #{score,jdbcType=INTEGER}, #{time,jdbcType=TIMESTAMP}, #{summary,jdbcType=VARCHAR}, 
+      #{text,jdbcType=LONGVARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.ca.bean.Comments">
+    update comments
+    set product_id = #{productId,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR},
+      profile_name = #{profileName,jdbcType=VARCHAR},
+      helpfulness_numerator = #{helpfulnessNumerator,jdbcType=INTEGER},
+      helpfulness_denominator = #{helpfulnessDenominator,jdbcType=INTEGER},
+      score = #{score,jdbcType=INTEGER},
+      `time` = #{time,jdbcType=TIMESTAMP},
+      summary = #{summary,jdbcType=VARCHAR},
+      `text` = #{text,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, product_id, user_id, profile_name, helpfulness_numerator, helpfulness_denominator, 
+    score, `time`, summary, `text`
+    from comments
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, product_id, user_id, profile_name, helpfulness_numerator, helpfulness_denominator, 
+    score, `time`, summary, `text`
+    from comments
+  </select>
+  <select id="getCommentsByPage" resultMap="BaseResultMap">
+    select id, product_id, user_id, profile_name, helpfulness_numerator, helpfulness_denominator,
+    score, `time`, summary, `text`
+    from comments where 1=1
+    <if test="comments.userId !=null and comments.userId != ''">
+      user_id = #{comments.userId}
+    </if>
+    <if test="comments.productId !=null and comments.productId != ''">
+      and product_id = #{comments.productId}
+    </if>
+    <if test="comments.score !=null and comments.score != ''">
+      and score = #{comments.score}
+    </if>
+    <if test="beginDateScope !=null">
+      and `time` between #{beginDateScope[0]} and #{beginDateScope[1]}
+    </if>
+    <if test="page !=null and size!=null">
+      limit #{page},#{size}
+    </if>
+  </select>
+  <select id="getTotal" resultType="java.lang.Long">
+    select count(*) from comments where 1=1
+    <if test="comments.userId !=null and comments.userId != ''">
+      user_id = #{comments.userId}
+    </if>
+    <if test="comments.productId !=null and comments.productId != ''">
+      and product_id = #{comments.productId}
+    </if>
+    <if test="comments.score !=null and comments.score != ''">
+      and score = #{comments.score}
+    </if>
+    <if test="beginDateScope !=null">
+      and `time` between #{beginDateScope[0]} and #{beginDateScope[1]}
+    </if>
+  </select>
+
+  <delete id="deleteInvalidData">
+    delete from comments where id not in (select t.maxId from (select max(id) as maxId from comments group by product_id,user_id) t)
+  </delete>
+
+  <delete id="deleteInvalidData2">
+    delete from comments where id not in (select t.maxId from (select max(id) as maxId from comments group by text) t)
+  </delete>
+</mapper>
